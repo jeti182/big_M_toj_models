@@ -25,27 +25,28 @@ for ps in [(0,2),(2,4),(4,6),(6,8)]:
         
         # Run logistic regression model
         with logistic_regression_model(data) as _lr_model:
-            lr_trace = pm.sample(8000, tune=2000, init='adapt_diag', chains=4)
+            lr_trace = pm.sample(4000, tune=2000, init='adapt_diag', chains=4)
             plot_ppc_and_score(lr_trace, data, paras=['PSS', 'DL'],
                                title='P'+str(p)+': Logistic Regression', ax=axs[0,i])
         del _lr_model, lr_trace # Just to free up memory. 
         # You might consider saving these objects to disk for later use.
 
-        # Run TVATOJ model
-        with tvatoj_model(data) as _tvatoj_model:
-            tvatoj_trace = pm.sample(8000, tune=2000, init='adapt_diag', chains=4)
-            plot_ppc_and_score(tvatoj_trace, data, paras=['C', 'w_p'],
-                                title='P'+str(p)+': TVATOJ', ax=axs[1,i])
-        del _tvatoj_model, tvatoj_trace 
-
         # Run AQGP model
         with aqgp_model(data) as _aqgp_model:
-            aqgp_trace = pm.sample(8000, tune=4000, init='adapt_diag', chains=4,
+            aqgp_trace = pm.sample(4000, tune=4000, init='adapt_diag', chains=4,
                                    target_accept=0.95) 
             plot_ppc_and_score(aqgp_trace, data, 
                                 paras=['λ_p', 'λ_r', 'Δ', 'τ', 'ξ','ε_p', 'ε_r'],
-                                title='P'+str(p)+': AQGP', ax=axs[2,i])
+                                title='P'+str(p)+': AQGP', ax=axs[1,i])
         del _aqgp_model, aqgp_trace
+
+        # Run TVATOJ model
+        with tvatoj_model(data) as _tvatoj_model:
+            tvatoj_trace = pm.sample(4000, tune=2000, init='adapt_diag', chains=4)
+            plot_ppc_and_score(tvatoj_trace, data, paras=['C', 'w_p'],
+                                title='P'+str(p)+': TVATOJ', ax=axs[2,i])
+        del _tvatoj_model, tvatoj_trace 
+
 
         # Save plot to file
         plt.tight_layout()
